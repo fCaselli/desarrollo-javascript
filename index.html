@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulador - Local de Ropa</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Local de Ropa</h1>
+      <p>Agregá productos al carrito y simulá tu compra</p>
+    </header>
+
+    <main class="container">
+      <section id="catalogSection">
+        <h2>Catálogo</h2>
+        <div id="catalog" class="grid"></div>
+      </section>
+
+      <section id="cartSection">
+        <h2>Carrito</h2>
+        <div id="cartList"></div>
+        <p><strong>Total:</strong> <span id="cartTotal">$0</span></p>
+        <button id="btnClear">Vaciar carrito</button>
+        <button id="btnCheckout">Finalizar compra</button>
+
+        <!-- Ticket se mostrará acá -->
+        <div id="ticket"></div>
+      </section>
+    </main>
+
+    <section id="notifications"></section>
+
+    <footer>
+      <small>Entrega 2 - Simulador DOM + LocalStorage</small>
+    </footer>
+
+    <script src="js/app.js" defer></script>
+  </body>
+</html>
