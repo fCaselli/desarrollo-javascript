@@ -1,14 +1,7 @@
-// -----------------------------
-// Simulador Local de Ropa (DOM + LocalStorage)
-// -----------------------------
-
-const productos = [
-  { id: 1, nombre: "Remera", precio: 5000, imagen: "img/remera.jpg" },
-  { id: 2, nombre: "Pantalón", precio: 12000, imagen: "img/pantalon.jpg" },
-  { id: 3, nombre: "Campera", precio: 20000, imagen: "img/campera.jpg" },
-  { id: 4, nombre: "Zapatillas", precio: 25000, imagen: "img/zapatillas.jpg" },
-];
-
+// -------------------------------
+// VARIABLES GLOBALES
+// -------------------------------
+let productos = [];
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
 const catalogContainer = document.getElementById("catalog");
@@ -16,9 +9,24 @@ const cartList = document.getElementById("cartList");
 const cartTotal = document.getElementById("cartTotal");
 const btnClear = document.getElementById("btnClear");
 const btnCheckout = document.getElementById("btnCheckout");
-const notifications = document.getElementById("notifications");
+const ticket = document.getElementById("ticket");
 
-// Renderizar catálogo
+// -------------------------------
+// CARGA DE PRODUCTOS (SIMULACIÓN DE API)
+// -------------------------------
+fetch("js/productos.json")
+  .then((response) => response.json())
+  .then((data) => {
+    productos = data;
+    renderCatalogo(); // renderizar cuando se cargan los productos
+  })
+  .catch((error) => {
+    console.error("Error al cargar productos:", error);
+  });
+
+// -------------------------------
+// FUNCIONES DE CATÁLOGO
+// -------------------------------
 function renderCatalogo() {
   catalogContainer.innerHTML = "";
   productos.forEach((prod) => {
@@ -28,42 +36,31 @@ function renderCatalogo() {
       <img src="${prod.imagen}" alt="${prod.nombre}" class="product-img">
       <h3>${prod.nombre}</h3>
       <p>Precio: $${prod.precio}</p>
-      <button data-id="${prod.id}">Agregar al carrito</button>
+      <button data-id="${prod.id}" class="btn-agregar">Agregar al carrito</button>
     `;
     catalogContainer.appendChild(card);
   });
-}
 
-// Renderizar carrito
-function renderCarrito() {
-  cartList.innerHTML = "";
-  if (carrito.length === 0) {
-    cartList.innerHTML = "<p>El carrito está vacío</p>";
-    cartTotal.textContent = "$0";
-    return;
-  }
-
-  let total = 0;
-  carrito.forEach((item) => {
-    const div = document.createElement("div");
-    div.innerHTML = `${item.nombre} - ${item.cantidad} x $${item.precio} = $${item.subtotal}`;
-    cartList.appendChild(div);
-    total += item.subtotal;
+  // eventos de agregar al carrito
+  const botones = document.querySelectorAll(".btn-agregar");
+  botones.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = parseInt(e.target.dataset.id);
+      agregarAlCarrito(id);
+    });
   });
-
-  cartTotal.textContent = `$${total}`;
-  localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
-// Agregar producto al carrito
+// -------------------------------
+// FUNCIONES DE CARRITO
+// -------------------------------
 function agregarAlCarrito(id) {
   const producto = productos.find((p) => p.id === id);
-  if (!producto) return;
+  const productoEnCarrito = carrito.find((item) => item.id === id);
 
-  const item = carrito.find((i) => i.id === id);
-  if (item) {
-    item.cantidad++;
-    item.subtotal = item.cantidad * item.precio;
+  if (productoEnCarrito) {
+    productoEnCarrito.cantidad++;
+    productoEnCarrito.subtotal = productoEnCarrito.cantidad * producto.precio;
   } else {
     carrito.push({
       id: producto.id,
@@ -73,56 +70,50 @@ function agregarAlCarrito(id) {
       subtotal: producto.precio,
     });
   }
-  renderCarrito();
-  showNotification(`${producto.nombre} agregado al carrito`);
+
+  actualizarCarrito();
+  showNotification(`${producto.nombre} agregado al carrito`, "success");
 }
 
-// Vaciar carrito
+function renderCarrito() {
+  cartList.innerHTML = "";
+
+  carrito.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "cart-item";
+    div.innerHTML = `
+      <p>${item.nombre} (${item.cantidad}) - $${item.subtotal}</p>
+      <button class="btn-remove" data-id="${item.id}">X</button>
+    `;
+    cartList.appendChild(div);
+  });
+
+  const buttonsRemove = document.querySelectorAll(".btn-remove");
+  buttonsRemove.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = parseInt(e.target.dataset.id);
+      eliminarDelCarrito(id);
+    });
+  });
+
+  const total = carrito.reduce((acc, item) => acc + item.subtotal, 0);
+  cartTotal.textContent = `$${total}`;
+}
+
+function eliminarDelCarrito(id) {
+  carrito = carrito.filter((item) => item.id !== id);
+  actualizarCarrito();
+}
+
 function vaciarCarrito() {
   carrito = [];
-  localStorage.removeItem("carrito");
-  renderCarrito();
-  showNotification("Carrito vaciado");
+  actualizarCarrito();
+  showNotification("Carrito vaciado", "info");
 }
 
-// Finalizar compra
-function finalizarCompra() {
-  if (carrito.length === 0) {
-    showNotification("El carrito está vacío", "error");
-    return;
-  }
-
-  let total = carrito.reduce((acc, item) => acc + item.subtotal, 0);
-  carrito = [];
-  localStorage.removeItem("carrito");
-  renderCarrito();
-  showNotification(`Compra finalizada. Total: $${total}`, "success");
-}
-
-// Notificaciones en la página
-function showNotification(msg, type = "info") {
-  const p = document.createElement("p");
-  p.textContent = msg;
-  if (type === "success") p.style.color = "green";
-  if (type === "error") p.style.color = "red";
-  notifications.appendChild(p);
-  setTimeout(() => p.remove(), 3000);
-}
-
-// Eventos
-catalogContainer.addEventListener("click", (e) => {
-  if (e.target.tagName === "BUTTON") {
-    const id = parseInt(e.target.dataset.id);
-    agregarAlCarrito(id);
-  }
-});
-
-btnClear.addEventListener("click", vaciarCarrito);
-btnCheckout.addEventListener("click", finalizarCompra);
-
-const ticket = document.getElementById("ticket");
-
-// Finalizar compra con ticket detallado
+// -------------------------------
+// FINALIZAR COMPRA (TICKET)
+// -------------------------------
 function finalizarCompra() {
   if (carrito.length === 0) {
     showNotification("El carrito está vacío", "error");
@@ -131,7 +122,6 @@ function finalizarCompra() {
 
   let total = carrito.reduce((acc, item) => acc + item.subtotal, 0);
 
-  // Construir ticket
   let detalle = `
     <h3>🧾 Ticket de compra</h3>
     <ul>
@@ -146,13 +136,37 @@ function finalizarCompra() {
   `;
   ticket.innerHTML = detalle;
 
-  // Vaciar carrito
   carrito = [];
   localStorage.removeItem("carrito");
   renderCarrito();
   showNotification("Compra finalizada con éxito", "success");
 }
 
-// Inicialización
-renderCatalogo();
+// -------------------------------
+// ACTUALIZAR CARRITO EN STORAGE Y DOM
+// -------------------------------
+function actualizarCarrito() {
+  localStorage.setItem("carrito", JSON.stringify(carrito));
+  renderCarrito();
+}
+
+// -------------------------------
+// NOTIFICACIONES BÁSICAS
+// -------------------------------
+function showNotification(message, type) {
+  const notif = document.createElement("div");
+  notif.className = `notification ${type}`;
+  notif.textContent = message;
+  document.body.appendChild(notif);
+
+  setTimeout(() => {
+    notif.remove();
+  }, 2500);
+}
+
+// -------------------------------
+// EVENTOS PRINCIPALES
+// -------------------------------
+btnClear.addEventListener("click", vaciarCarrito);
+btnCheckout.addEventListener("click", finalizarCompra);
 renderCarrito();

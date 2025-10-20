@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "nombre": "Remera",
+    "precio": 5000,
+    "imagen": "img/remera.jpg"
+  },
+  {
+    "id": 2,
+    "nombre": "Pantalón",
+    "precio": 12000,
+    "imagen": "img/pantalon.jpg"
+  },
+  {
+    "id": 3,
+    "nombre": "Campera",
+    "precio": 20000,
+    "imagen": "img/campera.jpg"
+  },
+  {
+    "id": 4,
+    "nombre": "Zapatillas",
+    "precio": 25000,
+    "imagen": "img/zapatillas.jpg"
+  }
+]

@@ -3,16 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simulador - Local de Ropa</title>
+    <title>Proyecto Final - Local de Ropa</title>
     <link rel="stylesheet" href="css/style.css" />
+    <script src="js/app.js" defer></script>
   </head>
   <body>
     <header>
-      <h1>Local de Ropa</h1>
-      <p>Agregá productos al carrito y simulá tu compra</p>
+      <h1>🛍️ Local de Ropa</h1>
+      <p>
+        Este simulador interactivo permite agregar productos de ropa al carrito,
+        calcular el total de la compra y visualizar un ticket final. Los datos
+        de los productos se cargan dinámicamente desde un archivo JSON y se
+        almacenan en el navegador mediante LocalStorage.
+      </p>
     </header>
 
-    <main class="container">
+    <main>
       <section id="catalogSection">
         <h2>Catálogo</h2>
         <div id="catalog" class="grid"></div>
@@ -22,20 +28,15 @@
         <h2>Carrito</h2>
         <div id="cartList"></div>
         <p><strong>Total:</strong> <span id="cartTotal">$0</span></p>
-        <button id="btnClear">Vaciar carrito</button>
-        <button id="btnCheckout">Finalizar compra</button>
+        <button id="btnClear" class="btn">Vaciar carrito</button>
+        <button id="btnCheckout" class="btn">Finalizar compra</button>
 
-        <!-- Ticket se mostrará acá -->
         <div id="ticket"></div>
       </section>
     </main>
 
-    <section id="notifications"></section>
-
     <footer>
-      <small>Entrega 2 - Simulador DOM + LocalStorage</small>
+      <p>Proyecto Final - Simulador con DOM, JSON y LocalStorage</p>
     </footer>
-
-    <script src="js/app.js" defer></script>
   </body>
 </html>
